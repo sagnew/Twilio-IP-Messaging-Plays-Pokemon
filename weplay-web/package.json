@@ -1,0 +1,21 @@
+{
+  "name": "weplay-web",
+  "version": "0.1.0",
+  "description": "collaborative gameboy emulation powered by socket.io – weplay.io",
+  "dependencies": {
+    "express": "3.4.8",
+    "debug": "0.7.4",
+    "redis": "0.10.1",
+    "mustache-express": "1.0.1",
+    "socket.io-client": "1.3.7",
+    "blob": "0.0.1",
+    "jquery": "1.11.0"
+  },
+  "devDependencies": {
+    "browserify": "12.0.1",
+    "browserify-middleware": "^7.0.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "weplay-emulator",
+  "version": "0.0.1",
+  "description": "",
+  "dependencies": {
+    "canvas": "^1.3.1",
+    "debug": "0.7.4",
+    "gameboy": "git+https://git@github.com/faiq/gameboy.git",
+    "msgpack": "1.0.2",
+    "redis": "0.10.1",
+    "socket.io-emitter": "0.2.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
