@@ -4,6 +4,17 @@
 var $ = require('jquery');
 var io = require('socket.io-client');
 var blobToImage = require('./blob');
+var censor = require('./censor');
+
+// Manages the state of our access token we got from the server
+var accessManager;
+
+// Our interface to the IP Messaging service
+var messagingClient;
+
+// A handle to the "general" chat channel - the one and only channel we
+// will have in this sample app
+var generalChannel;
 
 // resize asap before loading other stuff
 function resize(){
@@ -34,7 +45,11 @@ socket.on('connect', function(){
   $('.input').addClass('connected');
   $('.input form input').attr('placeholder', 'enter your name to play');
   $('.input form input').attr('disabled', false);
-  message('Connected!');
+  message('Welcome to Twilio IP Messaging Plays Pokemon!');
+  message('This is a Twitch Plays Pokemon clone built by @Sagnewshreds using the new IP Messaging API.');
+  message('Enter the following commands in the chat to play the game:');
+  message('["left", "right", "up", "down", "a", "b", "start", "select"]');
+  message('Note: Try this in Chrome or Firefox for best results.');
   if (window.localStorage && localStorage.nick) {
     join(localStorage.nick);
   }
@@ -51,16 +66,26 @@ if ('ontouchstart' in window) {
 var joined = false;
 var input = $('.input input');
 var nick;
+var gbButtons = ['left', 'right', 'up', 'down', 'a', 'b', 'start', 'select'];
 $('.input form').submit(function(ev){
   ev.preventDefault();
-  var data = input.val();
-  if ('' === data) return;
+  var enteredText = input.val();
+  enteredText = censor(enteredText);
+  if ('' === enteredText) return;
   input.val('');
   if (joined) {
-    message(data, nick);
-    socket.emit('message', data);
+    if (gbButtons.indexOf(enteredText.toLowerCase()) !== -1) {
+      generalChannel.sendMessage(enteredText);
+      socket.emit('move', enteredText);
+    } else if (enteredText.toLowerCase() === 'up up down down left right left right b a start') {
+      // Special surprise.
+      konamiCode();
+      message(nick, 'This player is currently cheating');
+    } else {
+      generalChannel.sendMessage(enteredText);
+    }
   } else {
-    join(data);
+    join(enteredText);
   }
 });
 
@@ -71,13 +96,17 @@ function join(data){
   try {
     if (window.localStorage) localStorage.nick = data;
   } catch (e) {}
-  socket.emit('join', data);
   $('body').addClass('joined');
   $('.input').addClass('joined');
   input
   .attr('placeholder', 'type in to chat')
   .blur();
   joined = true;
+
+  // If the IP Messaging channel doesn't exist yet, initialize it.
+  if(!generalChannel) {
+    initializeChat();
+  }
 }
 
 input.focus(function(){
@@ -125,15 +154,23 @@ var map = {
 var reverseMap = {};
 for (var i in map) reverseMap[map[i]] = i;
 
-$(document).on('keydown', function(ev){
-  if (null == nick) return;
-  var code = ev.keyCode;
-  if ($('body').hasClass('input_focus')) return;
-  if (map[code]) {
-    ev.preventDefault();
-    socket.emit('move', map[code]);
-  }
-});
+// Allows user to control the game without chat.
+function konamiCode () {
+  alert('You think you\'re clever huh? You have 5 minutes');
+  console.log('Konami code entered!');
+  $(document).on('keydown', function(ev){
+    if (null == nick) return;
+    var code = ev.keyCode;
+    if ($('body').hasClass('input_focus')) return;
+    if (map[code]) {
+      ev.preventDefault();
+      socket.emit('move', map[code]);
+    }
+    window.setTimeout(function () {
+      $(document).on('keydown', function() {});
+    }, 300000);
+  });
+}
 
 // Listener to fire up keyboard events on mobile devices for control overlay
 $('table.screen-keys td').mousedown(function() {
@@ -166,17 +203,14 @@ socket.on('join', function(nick, loc){
   scrollMessages();
 });
 
-socket.on('move', function(move, by){
-  var p = $('<p class="move">').text(' pressed ' + move);
-  p.prepend($('<span class="move-by">').text(by));
-  $('.messages').append(p);
-  trimMessages();
-  scrollMessages();
-});
-
-socket.on('message', function(msg, by){
-  message(msg, by);
-});
+// Uncomment the following listener to allow users to control the game without using the chat.
+//socket.on('move', function(move, by){
+//  var p = $('<p class="move">').text(' pressed ' + move);
+//  p.prepend($('<span class="move-by">').text(by));
+//  $('.messages').append(p);
+//  trimMessages();
+//  scrollMessages();
+//});
 
 socket.on('reload', function(){
   setTimeout(function(){
@@ -228,3 +262,52 @@ function highlightControls() {
 
 $('img').mousedown(highlightControls);
 $('table.screen-keys td').mousedown(highlightControls);
+
+function initializeChat() {
+  // Get an access token for the current user, passing a username (identity)
+  // and a device ID - for browser-based apps, we'll always just use the
+  // value "browser"
+  $.getJSON('/token', {
+    identity: nick,
+    device: 'browser'
+  }, function(data) {
+    // Initialize the IP messaging client
+    accessManager = new Twilio.AccessManager(data.token);
+    messagingClient = new Twilio.IPMessaging.Client(accessManager);
+
+    // Get the general chat channel, which is where all the messages are
+    // sent in this simple application
+    var promise = messagingClient.getChannelByUniqueName('general');
+    promise.then(function(channel) {
+      generalChannel = channel;
+      if (!generalChannel) {
+        // If it doesn't exist, let's create it
+        messagingClient.createChannel({
+          uniqueName: 'general',
+          friendlyName: 'General Chat Channel'
+        }).then(function(channel) {
+          console.log('Created general channel:');
+          console.log(channel);
+          generalChannel = channel;
+          setupChannel();
+        });
+      } else {
+        console.log('Found general channel:');
+        console.log(generalChannel);
+        setupChannel();
+      }
+    });
+  });
+}
+
+// Set up channel after it has been found
+function setupChannel() {
+  // Join the general channel
+  generalChannel.join().then(function(channel) {
+    // Listen for new messages sent to the channel
+    generalChannel.on('messageAdded', function(newMessage) {
+      message(newMessage.body, newMessage.author);
+    });
+  });
+
+}
