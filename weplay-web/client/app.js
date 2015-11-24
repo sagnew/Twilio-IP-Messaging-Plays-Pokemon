@@ -2,7 +2,6 @@
 var $ = require('jquery');
 var io = require('socket.io-client');
 var blobToImage = require('./blob');
-var chat = require('./chat');
 
 // Global variables
 var socket = io(config.io);
@@ -67,19 +66,16 @@ socket.on('connect', function() {
   $('.input').addClass('connected');
   $('.input form input').attr('placeholder', 'enter your name to play');
   $('.input form input').attr('disabled', false);
-  chat.printMessage('Welcome to Twilio IP Messaging Plays Pokemon!');
-  chat.printMessage('This is a Twitch Plays Pokemon clone built by @Sagnewshreds using the new IP Messaging API.');
-  chat.printMessage('Enter the following commands in the chat to play the game:');
-  chat.printMessage('["left", "right", "up", "down", "a", "b", "start", "select"]');
-  chat.printMessage('Note: Try this in Chrome or Firefox for best results.');
-  if (window.localStorage && localStorage.nick) {
-    join(localStorage.nick);
-  }
+  // chat.printMessage('Welcome to Twilio IP Messaging Plays Pokemon!');
+  // chat.printMessage('This is a Twitch Plays Pokemon clone built by @Sagnewshreds using the new IP Messaging API.');
+  // chat.printMessage('Enter the following commands in the chat to play the game:');
+  // chat.printMessage('["left", "right", "up", "down", "a", "b", "start", "select"]');
+  // chat.printMessage('Note: Try this in Chrome or Firefox for best results.');
 });
 
-socket.on('disconnect', function() {
-  printMessage('Disconnected. Reconnecting.');
-});
+// socket.on('disconnect', function() {
+//   chat.printMessage('Disconnected. Reconnecting.');
+// });
 
 socket.on('joined', function() {
   $('.messages').append(
