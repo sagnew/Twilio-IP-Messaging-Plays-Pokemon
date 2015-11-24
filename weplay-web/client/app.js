@@ -1,10 +1,14 @@
-/*global URL,config*/
-
-/* dependencies */
+// dependencies
 var $ = require('jquery');
 var io = require('socket.io-client');
 var blobToImage = require('./blob');
 var chat = require('./chat');
+
+// Global variables
+var socket = io(config.io);
+var joined = false;
+var input = $('.input input');
+var nick;
 
 // resize asap before loading other stuff
 function resize() {
@@ -24,7 +28,6 @@ resize();
 // reset game img size for mobile now that we loaded
 $('#game img').css('height', '100%');
 
-var socket = io(config.io);
 socket.on('connect', function() {
   $('body').addClass('ready');
   $('.messages').empty();
@@ -52,16 +55,24 @@ if ('ontouchstart' in window) {
   $('body').addClass('touch');
 }
 
-var joined = false;
-var input = $('.input input');
-var nick;
-var gbButtons = ['left', 'right', 'up', 'down', 'a', 'b', 'start', 'select'];
 $('.input form').submit(function(ev) {
+  // First prevent the form from being submitted
   ev.preventDefault();
+
+  // Create an array of strings corresponding to GameBoy buttons to test against input
+  var gbButtons = ['left', 'right', 'up', 'down', 'a', 'b', 'start', 'select'];
   var enteredText = input.val();
+
+  // Add this if you want to filter input
   // enteredText = censor(enteredText);
+
+  // Do nothing if no text was entered.
   if ('' === enteredText) return;
+
+  // Remove the message that was sent from the form input
   input.val('');
+
+  // Check to see if the user has already joined the chat
   if (joined) {
     if (gbButtons.indexOf(enteredText.toLowerCase()) !== -1) {
       chat.channel.sendMessage(enteredText);
@@ -74,6 +85,7 @@ $('.input form').submit(function(ev) {
       chat.channel.sendMessage(enteredText);
     }
   } else {
+    // If the user hasn't joined, then join using their entered text as a username
     join(enteredText);
   }
 });
