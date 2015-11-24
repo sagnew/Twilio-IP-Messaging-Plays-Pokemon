@@ -14,6 +14,7 @@ var generalChannel;
 // The object we are going to export as this module
 module.exports = {
 
+  // Remove the oldest message when the number of messages exceeds 300
   trimMessages: function() {
     var messages = $('.messages');
     while (messages.children().length > 300) {
@@ -21,6 +22,7 @@ module.exports = {
     }
   },
 
+  // Add a message to the chat bar
   printMessage: function(msg, by) {
     var p = $('<p>').text(msg);
     if (by) {
@@ -32,6 +34,7 @@ module.exports = {
     this.trimMessages();
   },
 
+  // Connect to the Twilio IP Messaging API and set up the chat app
   initializeChat: function(identity) {
 
     // Get an access token for the current user, passing a username (identity)
