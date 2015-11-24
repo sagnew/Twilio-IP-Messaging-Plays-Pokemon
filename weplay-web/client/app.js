@@ -41,27 +41,6 @@ function resize() {
   }
 }
 
-function join(data) {
-  nick = data;
-  // Try-catch necessary because Safari might have locked setItem causing
-  // exception
-  try {
-    if (window.localStorage) localStorage.nick = data;
-  } catch (e) {}
-
-  $('body').addClass('joined');
-  $('.input').addClass('joined');
-  input
-  .attr('placeholder', 'type in to chat')
-  .blur();
-  joined = true;
-
-  // If the IP Messaging channel doesn't exist yet, initialize it.
-  if(!chat.channel) {
-    chat.initializeChat(nick);
-  }
-}
-
 // Highlights controls when image or button pressed
 function highlightControls() {
   $('table.screen-keys td:not(.empty-cell)').addClass('highlight');
@@ -189,38 +168,3 @@ $('table.screen-keys td').mousedown(function() {
 
 $('img').mousedown(highlightControls);
 $('table.screen-keys td').mousedown(highlightControls);
-
-$('.input form').submit(function(ev) {
-  // First prevent the form from being submitted
-  ev.preventDefault();
-
-  // Create an array of strings corresponding to GameBoy buttons to test against input
-  var gbButtons = ['left', 'right', 'up', 'down', 'a', 'b', 'start', 'select'];
-  var enteredText = input.val();
-
-  // Add this if you want to filter input
-  // enteredText = censor(enteredText);
-
-  // Do nothing if no text was entered.
-  if ('' === enteredText) return;
-
-  // Remove the message that was sent from the form input
-  input.val('');
-
-  // Check to see if the user has already joined the chat
-  if (joined) {
-    if (gbButtons.indexOf(enteredText.toLowerCase()) !== -1) {
-      chat.channel.sendMessage(enteredText);
-      socket.emit('move', enteredText);
-    } else if (enteredText.toLowerCase() === 'up up down down left right left right b a start') {
-      // Special surprise.
-      chat.konamiCode();
-      printMessage(nick, 'This player is currently cheating');
-    } else {
-      chat.channel.sendMessage(enteredText);
-    }
-  } else {
-    // If the user hasn't joined, then join using their entered text as a username
-    join(enteredText);
-  }
-});
