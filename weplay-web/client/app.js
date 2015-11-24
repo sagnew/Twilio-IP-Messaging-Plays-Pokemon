@@ -17,7 +17,6 @@ function resize() {
     $('.input input').css('width', $('.input').width());
     $('.messages').css('height', $('#chat').height() - 70);
   }
-  chat.scrollMessages();
 }
 $(window).resize(resize);
 resize();
@@ -127,7 +126,6 @@ socket.on('joined', function() {
   );
 
   $('table.unjoined').removeClass('unjoined');
-  chat.scrollMessages();
 });
 
 var map = {
@@ -173,7 +171,6 @@ socket.on('join', function(nick, loc) {
   p.append(' joined.');
   $('.messages').append(p);
   chat.trimMessages();
-  chat.scrollMessages();
 });
 
 // Uncomment the following listener to allow users to be notified when a button is pressed.
@@ -182,7 +179,6 @@ socket.on('join', function(nick, loc) {
 //  p.prepend($('<span class="move-by">').text(by));
 //  $('.messages').append(p);
 //  chat.trimMessages();
-//  chat.scrollMessages();
 //});
 
 socket.on('reload', function() {

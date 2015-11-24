@@ -1,3 +1,4 @@
+// We will be using jQuery to manipulate DOM elements for the chat.
 var $ = require('jquery');
 
 // Manages the state of our access token we got from the server
@@ -10,6 +11,7 @@ var messagingClient;
 // will have in this app
 var generalChannel;
 
+// The object we are going to export as this module
 module.exports = {
 
   trimMessages: function() {
@@ -28,11 +30,6 @@ module.exports = {
     }
     $('.messages').append(p);
     this.trimMessages();
-    this.scrollMessages();
-  },
-
-  scrollMessages: function() {
-    $('.messages')[0].scrollTop = 10000000;
   },
 
   initializeChat: function(identity) {
@@ -105,5 +102,5 @@ module.exports = {
         $(document).on('keydown', function() {});
       }, 300000);
     });
-  },
+  }
 };
