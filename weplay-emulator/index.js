@@ -81,4 +81,5 @@ sub.on('message', function(channel, move){
   emu.move(move.toString());
 });
 
+console.log('Gameboy emulator running ' + process.env.WEPLAY_ROM);
 load();

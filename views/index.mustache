@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta property="og:title" content="weplay - collaborative Pokemon with Socket.IO"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="http://weplay.io/screenshot.png"/>
+    <meta property="og:url" content="http://weplay.io/"/>
+    <meta property="og:site-name" content="weplay"/>
+    <meta property="fb:admins" content="686296795"/>
+    <title>weplay – collaborative pokemon yellow</title>
+    <link rel="stylesheet" href="/fonts.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="/app.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
+  </head>
+  <body>
+    <div id="game">
+      <img alt="game" src="data:image/png;base64,{{img}}" />
+      <i title="You can control the game with your keyboard" class="keyboard icon-keyboard-1">&nbsp;</i>
+      <span class="count-wrapper">
+        Online: <span class="count">{{connections}}</span>
+      </span>
+      <table id="mov-keys" class="unjoined screen-keys">
+        <tr>
+          <td class="empty-cell"></td>
+          <td id="up">↑</td>
+          <td class="empty-cell"></td>
+        </tr>
+        <tr>
+          <td id="left">←</td>
+          <td id="down">↓</td>
+          <td id="right">→</td>
+        </tr>
+      </table>
+      <table id="keys" class="unjoined screen-keys">
+        <tr>
+          <td id="start">start</td>
+          <td id="select">select</td>
+        </tr>
+        <tr>
+          <td id="b" class="round">B</td>
+          <td id="a" class="round">A</td>
+        </tr>
+        </table>
+    </div>
+    <div id="chat">
+      <div class="connecting messages">
+      </div>
+      <div class="input connecting">
+        <form action="">
+          <input type="text" disabled placeholder="connecting..." />
+        </form>
+      </div>
+    </div>
+
+    <script src="//media.twiliocdn.com/sdk/rtc/js/ip-messaging/v0.8/twilio-ip-messaging.min.js"></script>
+    <script>
+      config = {};
+      config.io = "{{{io}}}";
+    </script>
+    <script src="/main.js"></script>
+  </body>
+</html>
