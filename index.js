@@ -42,7 +42,7 @@ app.get('/', function(req, res, next){
   });
 });
 
-app.get('/screenshot.png', function(req, res, next) {
+app.get('/screenshot', function(req, res, next) {
   redis.get('weplay:frame', function(err, image){
     if (err) return next(err);
     res.writeHead(200, {

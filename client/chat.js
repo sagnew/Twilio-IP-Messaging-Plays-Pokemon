@@ -31,8 +31,8 @@ module.exports = {
       p.addClass('server');
     }
     $('.messages').append(p);
-    scrollMessages();
-    trimMessages();
+    this.scrollMessages();
+    this.trimMessages();
   },
 
   // Connect to the Twilio IP Messaging API and set up the chat app
@@ -58,20 +58,27 @@ module.exports = {
     // sent in this application
     var promise = messagingClient.getChannelByUniqueName('general');
     promise.then(function(channel) {
-      this.channel = channel;
-      if (!this.channel) {
+      if (!channel) {
+        console.log('No channel yet. Creating one.');
         // If it doesn't exist, let's create it
         messagingClient.createChannel({
           uniqueName: 'general',
           friendlyName: 'General Chat Channel'
         }).then(function(channel) {
+          console.log('Channel created.');
           this.channel = channel;
           this.setListeners();
-        }.bind(this));
+        }.bind(this)).catch(function(e) {
+          console.log(e);
+        });
       } else {
+        console.log('Channel found.');
+        this.channel = channel;
         this.setListeners();
       }
-    }.bind(this));
+    }.bind(this)).catch(function(e) {
+      console.log(e);
+    });
   },
 
   // Set up channel after it has been found
