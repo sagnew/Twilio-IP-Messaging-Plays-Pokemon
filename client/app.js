@@ -1,7 +1,8 @@
-// dependencies
+// Dependencies
 var $ = require('jquery');
 var io = require('socket.io-client');
 var blobToImage = require('./blob');
+var chat = require('./chat');
 
 // Global variables
 var socket = io(config.io);
@@ -109,3 +110,36 @@ input.blur(function() {
 
 $('img').mousedown(highlightControls);
 $('table.screen-keys td').mousedown(highlightControls);
+
+$('.input form').submit(function(ev) {
+  // First prevent the form from being submitted
+  ev.preventDefault();
+
+  // Create an array of strings corresponding to GameBoy buttons to test against input
+  var gbButtons = ['left', 'right', 'up', 'down', 'a', 'b', 'start', 'select'];
+  var enteredText = input.val();
+
+  // Do nothing if no text was entered.
+  if ('' === enteredText) {
+    return
+  }
+
+  // Remove the message that was sent from the form input
+  input.val('');
+
+  // Check to see if the user has already joined the chat
+  if (joined) {
+    console.log(enteredText);
+    if (gbButtons.indexOf(enteredText.toLowerCase()) !== -1) {
+      chat.channel.sendMessage(enteredText);
+      socket.emit('move', enteredText);
+    } else {
+      chat.channel.sendMessage(enteredText);
+    }
+  } else {
+    // If the user hasn't joined, then join using their entered text as a username
+    nick = enteredText;
+    joined = true;
+    chat.join(enteredText);
+  }
+});
