@@ -9,6 +9,20 @@ var messagingClient;
 
 // The object we are going to export as this module
 module.exports = {
+
+  // Utility function for chat UI
+  scrollMessages: function() {
+    $('.messages')[0].scrollTop = 10000000;
+  },
+
+  // Utility function for chat UI
+  trimMessages: function() {
+    var messages = $('.messages');
+    while (messages.children().length > 300) {
+      $(messages.children()[0]).remove();
+    }
+  },
+
   printMessage: function(msg, by) {
     var p = $('<p>').text(msg);
     if (by) {
@@ -17,6 +31,8 @@ module.exports = {
       p.addClass('server');
     }
     $('.messages').append(p);
+    scrollMessages();
+    trimMessages();
   },
 
   // Connect to the Twilio IP Messaging API and set up the chat app

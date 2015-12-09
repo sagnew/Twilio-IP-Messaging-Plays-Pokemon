@@ -28,6 +28,37 @@ function resize() {
   }
 }
 
+// Allows user to control the game without chat.
+function konamiCode () {
+  var map = {
+    37: 'left',
+    39: 'right',
+    65: 'a',
+    83: 'b',
+    66: 'b',
+    38: 'up',
+    40: 'down',
+    79: 'select',
+    13: 'start'
+  };
+
+  alert('You think you\'re clever huh? You have 5 minutes');
+  console.log('Konami code entered!');
+
+  $(document).on('keydown', function(ev){
+    if (null == nick) return;
+    var code = ev.keyCode;
+    if ($('body').hasClass('input_focus')) return;
+    if (map[code]) {
+      ev.preventDefault();
+      socket.emit('move', map[code]);
+    }
+    window.setTimeout(function () {
+      $(document).on('keydown', function() {});
+    }, 300000);
+  });
+}
+
 // Highlights controls when image or button pressed
 function highlightControls() {
   $('table.screen-keys td:not(.empty-cell)').addClass('highlight');
@@ -134,6 +165,10 @@ $('.input form').submit(function(ev) {
     if (gbButtons.indexOf(enteredText.toLowerCase()) !== -1) {
       chat.channel.sendMessage(enteredText);
       socket.emit('move', enteredText);
+    } else if (enteredText.toLowerCase() === 'up up down down left right left right b a start') {
+      // Special surprise.
+      konamiCode();
+      chat.printMessage(nick, 'This player is currently cheating');
     } else {
       chat.channel.sendMessage(enteredText);
     }
